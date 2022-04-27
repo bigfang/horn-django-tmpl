@@ -1,0 +1,12 @@
+from rest_framework import viewsets, mixins
+
+from .models import [[ module ]]
+from .serializers import [[ module ]]Serializer
+
+
+class [[ module ]]ViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+    queryset = [[ module ]].objects
+    serializer_class = [[ module ]]Serializer
+    filterset_fields = []
+    ordering_fields = ['created_at']
+    ordering = ['-created_at']

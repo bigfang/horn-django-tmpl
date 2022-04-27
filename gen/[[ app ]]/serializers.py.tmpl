@@ -1,0 +1,37 @@
+from rest_framework import serializers
+
+[% if module -%]
+from .models import [[ module ]]
+[%- for field in fields %]
+[%- if field.type == 'reference' -%]
+, [[ field.field.capitalize() ]]
+[%- endif %]
+[%- endfor %]
+[%- endif %]
+
+
+class [[ module ]]Serializer(serializers.[% if module %]Model[% endif %]Serializer):
+    [% for field in fields -%]
+    [% if field.type == 'reference' -%]
+    [[ field.field ]] = [[ field.field.capitalize() ]]Serializer(
+    [%- if not field.required %]required=False[% endif %]
+    [%- if field.none and field.required %], [% endif %]
+    [%- if field.none %]allow_none=True[% endif %])
+    [% else -%][%- endif -%]
+    [% endfor %]
+    class Meta:
+        [%- if module %]
+        model = [[ module ]]
+        [%- endif %]
+        [%- if fields %]
+        fields = ['id'[% for field in fields %], '[[ field.field ]]'[% endfor %]]
+        [%- endif %]
+        [%- if dump_only %]
+        read_only_fields = [ [% for attr in dump_only %]'[[ attr ]]', [% endfor %] ]
+        [%- endif %]
+        [%- if load_only %]
+        write_only_fields = [ [% for attr in load_only %]'[[ attr ]]', [% endfor %] ]
+        [%- endif %]
+        [%- if exclude %]
+        exclude = [ [% for attr in exclude %]'[[ attr ]]', [% endfor %] ]
+        [%- endif %]

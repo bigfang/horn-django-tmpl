@@ -1,0 +1,30 @@
+from django.db import models
+
+from [[ app ]].core.models import TimestampMixin, AuditAndDeleteMixin, SortMixin
+[%-  if has_ref -%]
+[%- endif %]
+
+
+class [[ module ]](TimestampMixin, SortMixin, AuditAndDeleteMixin):
+    [% for field in fields if not field.type == 'reference' -%]
+    [[ field.field ]] = models.[[ field.type.replace('String', 'Char') ]]Field(help_text='[[field.field]]'
+        [%- if 'String' in field.type %], max_length=255[% endif %]
+        [%- if field.default %], default=[[ field.default|safe]] [%- endif %]
+        [%- if field.uniq %], unique=True [%- endif %]
+        [%- if field.index %], db_index=True [%- endif %]
+        [%- if not field.nonull %], null=True, blank=True [%- endif %])
+[% if not loop.last %]    [% endif -%]
+    [%- endfor -%]
+    [% for field in fields if field.type == 'reference' %]
+    [[ field.field ]] = models.ForeignKey([[ field.table ]]
+        [%- if field.default %], default=[[ field.default|safe]] [%- endif %]
+        [%- if field.uniq %], unique=True [%- endif %]
+        [%- if field.index %], db_index=True [%- endif -%]
+        , on_delete=models.CASCADE
+        [%- if not field.nonull %], null=True, blank=True [%- endif %])
+    [%- endfor %]
+
+    class Meta:
+        db_table = '[[ table ]]'
+        verbose_name = '[[ table ]]'
+        verbose_name_plural = '[[ table ]]'
